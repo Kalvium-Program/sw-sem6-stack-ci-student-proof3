@@ -23,7 +23,7 @@ jobs:
         run: docker compose version
 
       - name: Start the stack and wait until healthy
-        run: docker compose up -d --build --wait --wait-timeout 120
+        run: docker compose up -d --build
 
       - name: Smoke test through Nginx
         run: curl --fail --silent --show-error --max-time 10 http://127.0.0.1:8095/api/events
