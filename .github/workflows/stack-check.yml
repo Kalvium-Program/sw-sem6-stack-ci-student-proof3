@@ -12,9 +12,6 @@ jobs:
   stack:
     runs-on: ubuntu-24.04
     timeout-minutes: 10
-    env:
-      # Throwaway value for this practice stack. Not a real password.
-      DB_PASSWORD: ci-only-not-secret
     steps:
       - name: Check out code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -23,6 +20,8 @@ jobs:
         run: docker compose version
 
       - name: Start the stack and wait until healthy
+        env:
+          DB_PASSWORD: ci-only-not-secret
         run: docker compose up -d --build --wait --wait-timeout 120
 
       - name: Smoke test through Nginx
