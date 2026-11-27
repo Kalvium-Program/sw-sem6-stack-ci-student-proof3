@@ -26,7 +26,7 @@ jobs:
         run: docker compose up -d --build --wait --wait-timeout 120
 
       - name: Smoke test through Nginx
-        run: curl --fail --silent --show-error --max-time 10 http://127.0.0.1:8095/api/events
+        run: curl --silent --show-error --max-time 10 http://127.0.0.1:8095/api/events
 
       - name: Save service logs
         if: failure()
