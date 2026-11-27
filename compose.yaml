@@ -14,7 +14,7 @@ services:
     build: ./app
     environment:
       PGHOST: db
-      PGPORT: "5433"
+      PGPORT: "5432"
       PGUSER: postgres
       PGPASSWORD: ${DB_PASSWORD:?Set DB_PASSWORD before starting the stack}
       PGDATABASE: campus_events
