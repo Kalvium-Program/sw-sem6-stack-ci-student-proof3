@@ -12,7 +12,9 @@ jobs:
   stack:
     runs-on: ubuntu-24.04
     timeout-minutes: 10
-    # TODO 1: add a job-level env block that sets DB_PASSWORD to a throwaway value.
+    env:
+      # Throwaway value for this practice stack. Not a real password.
+      DB_PASSWORD: ci-only-not-secret
     steps:
       - name: Check out code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -20,17 +22,27 @@ jobs:
       - name: Confirm Docker Compose is available
         run: docker compose version
 
-      # TODO 2: start the stack in the background, build the app image,
-      # and wait at most 120 seconds for every service to be healthy.
       - name: Start the stack and wait until healthy
-        run: echo "TODO 2" && exit 1
+        run: docker compose up -d --build --wait --wait-timeout 120
 
-      # TODO 3: request http://127.0.0.1:8095/api/events through Nginx.
-      # Fail on an HTTP error and give up after 10 seconds.
       - name: Smoke test through Nginx
-        run: echo "TODO 3" && exit 1
+        run: curl --fail --silent --show-error --max-time 10 http://127.0.0.1:8095/api/events
 
-      # TODO 4 (Task 2): add a step that saves the service logs, and a step that
-      # uploads them, both only when an earlier step failed.
+      - name: Save service logs
+        if: failure()
+        run: |
+          docker compose ps --all
+          docker compose logs --no-color --timestamps > compose-logs.txt
+          docker compose logs --no-color app proxy
 
-      # TODO 5 (Task 2): add a final step that always stops the stack.
+      - name: Upload service logs
+        if: failure()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: compose-logs
+          path: compose-logs.txt
+          retention-days: 7
+
+      - name: Stop the stack
+        if: always()
+        run: docker compose down --remove-orphans
